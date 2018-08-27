@@ -23,7 +23,12 @@ main =
 
 init : flags -> (Model, Cmd Msg)
 init flags =
-  ( { packages = [Package.package samplePackage]
+  ( { packages =
+      case Package.package samplePackage of
+        Ok pack ->
+          [pack]
+        Err err ->
+          let _ = Debug.log "decode error" err in []
     }
   , Cmd.none)
 

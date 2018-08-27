@@ -17,7 +17,7 @@ view model =
 displayPackage : Package -> Html msg
 displayPackage package =
   li []
-    [ text package.packageText
+    [ text (Maybe.withDefault "--" package.name)
     , ul []
       (List.map (text>>List.singleton>>(li [])) package.dependencies)
     ]
