@@ -29,7 +29,7 @@ init flags =
   ( { packages =
       case Package.package samplePackage of
         Ok pack ->
-          [translatePackageNames pack]
+          [pack]
         Err err ->
           let _ = Debug.log "decode error" err in []
     , repository = []
@@ -44,17 +44,6 @@ update msg model =
     PackageList (Err err) ->
       let _ = Debug.log "failed to get package list" err in
       (model, Cmd.none)
-
-translatePackageName : String -> String
-translatePackageName name =
-  case name of
-    "elm-lang/dom" -> "elm/browser"
-    "elm-tools/parser" -> "elm/parser"
-    _ -> String.replace "elm-lang/" "elm/" name
-
-translatePackageNames : Package -> Package
-translatePackageNames package =
-  {package | dependencies = List.map translatePackageName package.dependencies}
 
 fetchPackageList : Cmd Msg
 fetchPackageList =

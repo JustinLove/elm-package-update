@@ -9,6 +9,7 @@ import Html.Events
 css = """
 .found { color: green; }
 .missing { color: red; }
+.renamed .missing { opacity: 0.5; }
 """
 
 document model = {title = "Elm Package Update", body = [view model]}
@@ -31,9 +32,33 @@ displayPackage repository package =
 
 displayDependency : (List String) -> String -> Html msg
 displayDependency repository name =
-  li [ if List.member name repository then
+  let
+    newName = translatePackageName name
+    found = List.member newName repository
+  in
+    (if name == newName then
+      li [ ] [ packageName found name ]
+    else
+      li [ class "renamed" ]
+        [ packageName found newName
+        , text " ("
+        , packageName False name
+        , text ")"
+        ]
+    )
+
+packageName : Bool -> String -> Html msg
+packageName found name =
+  span [ if found then
          class "found"
        else
          class "missing" 
      ]
     [ text name ]
+
+translatePackageName : String -> String
+translatePackageName name =
+  case name of
+    "elm-lang/dom" -> "elm/browser"
+    "elm-tools/parser" -> "elm/parser"
+    _ -> String.replace "elm-lang/" "elm/" name
