@@ -1,15 +1,18 @@
 module ElmPackageUpdate exposing (..)
 
 import Package exposing (Package)
+import PackageRepository
 import View
 
 import Browser
+import Http
 
 type Msg
-  = None
+  = PackageList (Result Http.Error (List String))
 
 type alias Model =
   { packages : List Package
+  , repository : List String
   }
 
 main : Program () Model Msg
@@ -29,13 +32,23 @@ init flags =
           [pack]
         Err err ->
           let _ = Debug.log "decode error" err in []
+    , repository = []
     }
-  , Cmd.none)
+    , fetchPackageList)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    None -> (model, Cmd.none)
+    PackageList (Ok packages) ->
+      ({model | repository = packages}, Cmd.none)
+    PackageList (Err err) ->
+      let _ = Debug.log "failed to get package list" err in
+      (model, Cmd.none)
+
+fetchPackageList : Cmd Msg
+fetchPackageList =
+  Http.get "https://b49edyybqh.execute-api.us-east-1.amazonaws.com/production/search.json" PackageRepository.packageList
+    |> Http.send PackageList
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
