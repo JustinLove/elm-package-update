@@ -21,7 +21,7 @@ packageDecoder text =
 
 packageName : Decoder (Maybe String)
 packageName =
-  map (Url.fromString >> (Maybe.map (.path >>(String.dropRight 4))))
+  map (Url.fromString >> (Maybe.map (.path >>(String.dropRight 4)>>(String.dropLeft 1))))
     (field "repository" string)
 
 dependencies : Decoder (List String)
