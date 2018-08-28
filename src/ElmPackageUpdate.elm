@@ -1,14 +1,18 @@
 module ElmPackageUpdate exposing (..)
 
+import FileInput
 import Package exposing (Package)
 import PackageRepository
 import View
 
 import Browser
 import Http
+import Json.Decode
 
 type Msg
   = PackageList (Result Http.Error (List String))
+  | PackageLoaded (Result Json.Decode.Error Package)
+  | UI (View.Msg)
 
 type alias Model =
   { packages : List Package
@@ -19,7 +23,7 @@ main : Program () Model Msg
 main =
   Browser.document
     { init = init
-    , view = View.document
+    , view = View.document UI
     , update = update
     , subscriptions = subscriptions
     }
@@ -44,6 +48,13 @@ update msg model =
     PackageList (Err err) ->
       let _ = Debug.log "failed to get package list" err in
       (model, Cmd.none)
+    PackageLoaded (Ok package) ->
+      ({model | packages = package :: model.packages}, Cmd.none)
+    PackageLoaded (Err err) ->
+      let _ = Debug.log "elm-package.json import failed" err in
+      (model, Cmd.none)
+    UI (View.LoadPackage files) ->
+      (model, FileInput.read files)
 
 fetchPackageList : Cmd Msg
 fetchPackageList =
@@ -53,8 +64,15 @@ fetchPackageList =
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
-    [
+    [ FileInput.fileContents receivePackageFile
     ]
+
+receivePackageFile : String -> Msg
+receivePackageFile string =
+  string
+    |> Package.package
+    |> Result.mapError (Debug.log "package decode error")
+    |> PackageLoaded
 
 samplePackage = """
 {

@@ -1,10 +1,14 @@
-module View exposing (view, document)
+module View exposing (Msg(..), view, document)
 
 import Package exposing (Package)
+import FileInput
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events
+import Html.Events exposing (on)
+
+type Msg
+  = LoadPackage FileInput.Files
 
 css = """
 .found { color: green; }
@@ -12,10 +16,19 @@ css = """
 .renamed .missing { opacity: 0.5; }
 """
 
-document model = {title = "Elm Package Update", body = [view model]}
+document tagger model =
+  { title = "Elm Package Update"
+  , body = [view model |> Html.map tagger]
+  }
+
 view model =
   div []
     [ node "style" [] [ text css ]
+    , input
+      [ type_ "file"
+      , on "change" (FileInput.targetFiles LoadPackage)
+      ]
+      []
     , ul []
         (model.packages
           |> List.map (displayPackage model.repository)
