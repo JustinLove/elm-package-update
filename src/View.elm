@@ -49,11 +49,13 @@ displayDependency repository name =
 
 packageName : Bool -> String -> Html msg
 packageName found name =
-  span [ if found then
-         class "found"
-       else
-         class "missing" 
-     ]
+  a
+    [ if found then
+        class "found"
+      else
+        class "missing"
+    , href ("https://package.elm-lang.org/packages/" ++ name ++ "/latest")
+    ]
     [ text name ]
 
 translatePackageName : String -> String
