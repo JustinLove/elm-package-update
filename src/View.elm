@@ -74,6 +74,13 @@ packageName found name =
 translatePackageName : String -> String
 translatePackageName name =
   case name of
-    "elm-lang/dom" -> "elm/browser"
+    "evancz/url-parser" -> "elm/url"
     "elm-tools/parser" -> "elm/parser"
+    "elm-lang/animation-frame" -> "elm/browser"
+    "elm-lang/dom" -> "elm/browser"
+    "elm-lang/keyboard" -> "elm/browser"
+    "elm-lang/mouse" -> "elm/browser"
+    "elm-lang/navigation" -> "elm/browser"
+    "elm-lang/page-visibility" -> "elm/browser"
+    "elm-lang/window" -> "elm/browser"
     _ -> String.replace "elm-lang/" "elm/" name
