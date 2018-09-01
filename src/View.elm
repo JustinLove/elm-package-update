@@ -29,6 +29,10 @@ view model =
       , on "change" (FileInput.targetFiles LoadPackage)
       ]
       []
+    , p []
+      [ text (model.repository |> List.length |> String.fromInt)
+      , text " known packages"
+      ]
     , ul []
         (model.packages
           |> List.map (displayPackage model.repository)
