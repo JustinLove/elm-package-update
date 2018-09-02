@@ -6,15 +6,19 @@ import FileInput
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick)
+import Json.Decode
 
 type Msg
   = LoadPackage FileInput.Files
   | RemovePackage Int
+  | SelectPackage Package
+  | RenamePackage Package String
 
 css = """
 .found { color: green; }
 .missing { color: red; }
 .renamed .missing { opacity: 0.5; }
+input[readonly] { background-color: #eee; }
 """
 
 document tagger model =
@@ -36,14 +40,21 @@ view model =
       ]
     , ul []
         (model.packages
-          |> List.indexedMap (displayPackage model.repository)
+          |> List.indexedMap (displayPackage model.repository model.selectedPackage)
         )
     ]
 
-displayPackage : (List String) -> Int -> Package -> Html Msg
-displayPackage repository index package =
+displayPackage : (List String) -> Maybe Package -> Int -> Package -> Html Msg
+displayPackage repository selectedPackage index package =
   li []
-    [ text (Maybe.withDefault "--" package.name)
+    [ input
+      [ class "project-name"
+      , id ("project-" ++ (String.fromInt index))
+      , onClick (SelectPackage package)
+      , on "change" <| targetValue (RenamePackage package)
+      , readonly ((Just package) /= selectedPackage)
+      , value (Maybe.withDefault "--" package.name)
+      ] []
     , text " "
     , button [ onClick (RemovePackage index) ] [ text "X" ]
     , ul []
@@ -91,3 +102,7 @@ translatePackageName name =
     "elm-lang/page-visibility" -> "elm/browser"
     "elm-lang/window" -> "elm/browser"
     _ -> String.replace "elm-lang/" "elm/" name
+
+targetValue : (String -> msg) -> Json.Decode.Decoder msg
+targetValue tagger =
+  Json.Decode.map tagger Html.Events.targetValue

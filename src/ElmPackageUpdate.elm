@@ -22,6 +22,7 @@ type Msg
 type alias Model =
   { packages : List Package
   , repository : List String
+  , selectedPackage : Maybe Package
   }
 
 main : Program String Model Msg
@@ -41,6 +42,7 @@ init search =
   in
   ( { packages = []
     , repository = []
+    , selectedPackage = Nothing
     }
     , if local then
         localPackageList
@@ -76,12 +78,26 @@ update msg model =
     UI (View.LoadPackage files) ->
       (model, FileInput.read files)
     UI (View.RemovePackage index) ->
-      ( {model | packages = List.append
-          (List.take index model.packages)
-          (List.drop (index+1) model.packages)
-        }
-      , Cmd.none
-      )
+      { model
+      | packages = List.append
+        (List.take index model.packages)
+        (List.drop (index+1) model.packages)
+      , selectedPackage = Nothing
+      }
+        |> persist
+    UI (View.SelectPackage package) ->
+      ({model | selectedPackage = Just package}, Cmd.none)
+    UI (View.RenamePackage package name) ->
+      { model
+      | packages = model.packages |> List.map (\pack ->
+        if pack == package then
+          {pack | name = Just name}
+        else
+          pack
+        )
+      , selectedPackage = Nothing
+      }
+        |> persist
 
 persist : Model -> (Model, Cmd Msg)
 persist model =
