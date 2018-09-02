@@ -5,10 +5,11 @@ import FileInput
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (on)
+import Html.Events exposing (on, onClick)
 
 type Msg
   = LoadPackage FileInput.Files
+  | RemovePackage Int
 
 css = """
 .found { color: green; }
@@ -35,14 +36,16 @@ view model =
       ]
     , ul []
         (model.packages
-          |> List.map (displayPackage model.repository)
+          |> List.indexedMap (displayPackage model.repository)
         )
     ]
 
-displayPackage : (List String) -> Package -> Html msg
-displayPackage repository package =
+displayPackage : (List String) -> Int -> Package -> Html Msg
+displayPackage repository index package =
   li []
     [ text (Maybe.withDefault "--" package.name)
+    , text " "
+    , button [ onClick (RemovePackage index) ] [ text "X" ]
     , ul []
       (List.map (displayDependency repository) package.dependencies)
     ]

@@ -75,6 +75,13 @@ update msg model =
       (model, Cmd.none)
     UI (View.LoadPackage files) ->
       (model, FileInput.read files)
+    UI (View.RemovePackage index) ->
+      ( {model | packages = List.append
+          (List.take index model.packages)
+          (List.drop (index+1) model.packages)
+        }
+      , Cmd.none
+      )
 
 persist : Model -> (Model, Cmd Msg)
 persist model =
