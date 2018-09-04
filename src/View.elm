@@ -17,7 +17,7 @@ type Msg
 css = """
 .found { color: green; }
 .missing { color: red; }
-.renamed .missing { opacity: 0.5; }
+.old-name .missing { opacity: 0.5; }
 input[readonly] { background-color: #eee; }
 """
 
@@ -71,9 +71,9 @@ displayDependency repository name =
       li [ ] [ packageName found name ]
     else
       li [ class "renamed" ]
-        [ packageName found newName
+        [ span [ class "new-name" ] [ packageName found newName ]
         , text " ("
-        , packageName False name
+        , span [ class "old-name" ] [ packageName False name ]
         , text ")"
         ]
     )
