@@ -15,6 +15,40 @@ type Msg
   | RenamePackage Package String
 
 css = """
+/* Dead Simple Grid (c) 2015 Vladimir Agafonkin */
+
+.row .row { margin:  0 -1.5em; }
+.col      { padding: 0  1.5em; }
+
+.row:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+@media only screen { .col {
+    float: left;
+    width: 100%;
+    box-sizing: border-box;
+}}
+/* End DSG */
+
+.pick-file { max-width: 20em; }
+.known-packages { max-width: 20em; }
+.package-summary { max-width: 20em; }
+.package-detail { max-width: 20em; }
+
+@media only screen and (min-width: 40em) {
+  .pick-file { width: 50%; }
+  .known-packages { width: 50%; }
+  .package-summary { width: 50%; }
+  .package-detail { width: 50%; }
+}
+
+header { margin-bottom: 1em; }
+.package-summary { margin-top: 0; }
+.known-packages { margin-top: 0; margin-bottom: 0;}
+
 .found { color: green; }
 .missing {
   color: white;
@@ -38,24 +72,32 @@ document tagger model =
   }
 
 view model =
-  div []
+  div [ class "col" ]
     [ node "style" [] [ text css ]
-    , input
-      [ type_ "file"
-      , on "change" (FileInput.targetFiles LoadPackage)
+    , header [ class "row" ]
+      [ div [ class "pick-file col" ]
+        [ input
+          [ type_ "file"
+          , on "change" (FileInput.targetFiles LoadPackage)
+          ]
+          []
+        ]
+      , p [ class "known-packages col" ]
+        [ text (model.repository |> List.length |> String.fromInt)
+        , text " known packages"
+        ]
       ]
-      []
-    , p []
-      [ text (model.repository |> List.length |> String.fromInt)
-      , text " known packages"
+    , div [ class "row" ]
+      [ ul [ class "package-summary col" ]
+          (model.packages
+            |> List.indexedMap (displayPackageSummary model.repository model.selectedPackage)
+          )
+      , div [ class "package-detail col" ]
+        [ model.selectedPackage
+          |> Maybe.map (displayPackageDetail model.repository)
+          |> Maybe.withDefault (text "")
+        ]
       ]
-    , ul []
-        (model.packages
-          |> List.indexedMap (displayPackageSummary model.repository model.selectedPackage)
-        )
-    , model.selectedPackage
-      |> Maybe.map (displayPackageDetail model.repository)
-      |> Maybe.withDefault (text "")
     ]
 
 displayPackageSummary : (List String) -> Maybe Package -> Int -> Package -> Html Msg
@@ -89,7 +131,7 @@ displayPackageSummary repository selectedPackage index package =
 
 displayPackageDetail : (List String) -> Package -> Html Msg
 displayPackageDetail repository package =
-  li []
+  div []
     [ input
       [ class "project-name"
       , id ("project-detail")
