@@ -10,6 +10,7 @@ import Persist.Decode
 import View
 
 import Browser
+import Dict
 import Http
 import Json.Decode
 
@@ -17,6 +18,7 @@ type Msg
   = Loaded (Maybe Persist)
   | PackageList (Result Http.Error (List String))
   | PackageLoaded (Result Json.Decode.Error Package)
+  | PackageUrlLoaded (Result Http.Error Package)
   | UI (View.Msg)
 
 type alias Model =
@@ -75,8 +77,16 @@ update msg model =
     PackageLoaded (Err err) ->
       let _ = Debug.log "elm-package.json import failed" err in
       (model, Cmd.none)
+    PackageUrlLoaded (Ok package) ->
+      {model | packages = package :: model.packages}
+        |> persist
+    PackageUrlLoaded (Err err) ->
+      let _ = Debug.log "elm-package.json fetch failed" err in
+      (model, Cmd.none)
     UI (View.LoadPackage files) ->
       (model, FileInput.read files)
+    UI (View.LoadUrl url) ->
+      (model, fetchPackageFromUrl url)
     UI (View.RemovePackage index) ->
       { model
       | packages = List.append
@@ -123,6 +133,11 @@ fetchPackageList =
   Http.get "https://b49edyybqh.execute-api.us-east-1.amazonaws.com/production/search.json" PackageRepository.packageList
     |> Http.send PackageList
 
+fetchPackageFromUrl : String -> Cmd Msg
+fetchPackageFromUrl url =
+  Http.getString url
+    |> Http.send receivePackageResponse
+
 localPackageList : Cmd Msg
 localPackageList =
   Http.get "search.json" PackageRepository.packageList
@@ -141,6 +156,23 @@ receivePackageFile string =
     |> Package.package
     |> Result.mapError (Debug.log "package decode error")
     |> PackageLoaded
+
+receivePackageResponse : (Result Http.Error String) -> Msg
+receivePackageResponse res =
+  case res of
+    Ok string ->
+      string
+        |> Package.package
+        |> Result.mapError (Debug.log "package decode error")
+        |> Result.mapError (\err ->
+          ( Http.BadPayload
+            (Debug.toString err)
+            (Http.Response "url" {code = 200, message = "OK"} Dict.empty string)
+          )
+        )
+        |> PackageUrlLoaded
+    Err err ->
+      PackageUrlLoaded (Err err)
 
 extractSearchArgument : String -> String -> Maybe String
 extractSearchArgument key search =

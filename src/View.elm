@@ -10,6 +10,7 @@ import Json.Decode
 
 type Msg
   = LoadPackage FileInput.Files
+  | LoadUrl String
   | RemovePackage Int
   | SelectPackage Package
   | RenamePackage Package String
@@ -34,13 +35,15 @@ css = """
 /* End DSG */
 
 .pick-file { max-width: 20em; }
+.pick-url { max-width: 20em; }
 .known-packages { max-width: 20em; }
 .package-summary { max-width: 20em; }
 .package-detail { max-width: 20em; }
 
 @media only screen and (min-width: 40em) {
-  .pick-file { width: 50%; }
-  .known-packages { width: 50%; }
+  .pick-file { width: 33%; }
+  .pick-url { width: 33%; }
+  .known-packages { width: 33%; }
   .package-summary { width: 50%; }
   .package-detail { width: 50%; }
 }
@@ -75,16 +78,25 @@ view model =
   div [ class "col" ]
     [ node "style" [] [ text css ]
     , header [ class "row" ]
-      [ div [ class "pick-file col" ]
+      [ p [ class "known-packages col" ]
+        [ text (model.repository |> List.length |> String.fromInt)
+        , text " known packages"
+        ]
+      , div [ class "pick-file col" ]
         [ input
           [ type_ "file"
           , on "change" (FileInput.targetFiles LoadPackage)
           ]
           []
         ]
-      , p [ class "known-packages col" ]
-        [ text (model.repository |> List.length |> String.fromInt)
-        , text " known packages"
+      , div [ class "pick-url col" ]
+        [ input
+          [ class "package-url"
+          , id ("package-url")
+          , on "change" <| targetValue LoadUrl
+          , placeholder "https://../elm-package.json"
+          , value ""
+          ] []
         ]
       ]
     , div [ class "row" ]
@@ -135,7 +147,6 @@ displayPackageDetail repository package =
     [ input
       [ class "project-name"
       , id ("project-detail")
-      , onClick (SelectPackage package)
       , on "change" <| targetValue (RenamePackage package)
       , value (Maybe.withDefault "--" package.name)
       ] []
