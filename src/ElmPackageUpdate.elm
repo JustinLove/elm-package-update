@@ -41,15 +41,19 @@ init search =
   let
     slocal = Debug.log "slocal" (extractSearchArgument "local" search |> Maybe.withDefault "")
     local = Debug.log "local" (not (slocal == "" || slocal == "false"))
+    murl = Debug.log "url" (extractSearchArgument "url" search)
   in
   ( { packages = []
     , repository = []
     , selectedPackage = Nothing
     }
-    , if local then
-        localPackageList
-      else
-        fetchPackageList
+    , Cmd.batch 
+      [ if local then
+          localPackageList
+        else
+          fetchPackageList
+      , murl |> Maybe.map fetchPackageFromUrl |> Maybe.withDefault Cmd.none
+      ]
      )
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -73,7 +77,11 @@ update msg model =
       (model, Cmd.none)
     PackageLoaded (Ok package) ->
       { model
-      | packages = package :: model.packages
+      | packages =
+        if List.any (\{packageText} -> packageText == package.packageText) model.packages then
+          model.packages
+        else
+          package :: model.packages
       , selectedPackage = Just package
       }
         |> persist
@@ -82,7 +90,11 @@ update msg model =
       (model, Cmd.none)
     PackageUrlLoaded (Ok package) ->
       { model
-      | packages = package :: model.packages
+      | packages =
+        if List.any (\{packageText} -> packageText == package.packageText) model.packages then
+          model.packages
+        else
+          package :: model.packages
       , selectedPackage = Just package
       }
         |> persist
@@ -111,7 +123,6 @@ update msg model =
         else
           pack
         )
-      , selectedPackage = Nothing
       }
         |> persist
 
