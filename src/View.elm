@@ -52,14 +52,14 @@ header { margin-bottom: 1em; }
 .package-summary { margin-top: 0; }
 .known-packages { margin-top: 0; margin-bottom: 0;}
 
-.found { color: green; }
-.missing {
+.found, .found a  { color: green; }
+.missing, .missing a {
   color: white;
   background-color: red;
   padding-left: 0.2em;
   padding-right: 0.2em;
 }
-.old-name .missing { color: red; background-color: transparent; opacity: 0.5; }
+.old-name .missing, .old-name .missing a { color: red; background-color: transparent; opacity: 0.5; }
 .project-name.found {
   color: white;
   background-color: green;
@@ -155,7 +155,7 @@ displayPackageDetail repository package =
       (List.map (displayDependency repository) package.dependencies)
     ]
 
-displayDependency : (List String) -> String -> Html msg
+displayDependency : (List String) -> String -> Html Msg
 displayDependency repository name =
   let
     newName = translatePackageName name
@@ -179,16 +179,28 @@ isUpdated repository name =
   in
     List.member newName repository
 
-packageName : Bool -> String -> Html msg
+packageName : Bool -> String -> Html Msg
 packageName found name =
-  a
+  span
     [ if found then
         class "found"
       else
         class "missing"
-    , href ("https://package.elm-lang.org/packages/" ++ name ++ "/latest")
     ]
-    [ text name ]
+    [ a
+      [ href ("https://package.elm-lang.org/packages/" ++ name ++ "/latest")
+      ]
+      [ text name ]
+    , if not found then
+        span []
+          [ text " "
+          , button
+            [ onClick (LoadUrl ("https://raw.githubusercontent.com/" ++ name ++ "/master/elm-package.json")) ]
+            [ text "view" ]
+          ]
+      else
+        text ""
+    ]
 
 translatePackageName : String -> String
 translatePackageName name =
