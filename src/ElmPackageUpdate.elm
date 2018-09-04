@@ -72,13 +72,19 @@ update msg model =
       let _ = Debug.log "failed to get package list" err in
       (model, Cmd.none)
     PackageLoaded (Ok package) ->
-      {model | packages = package :: model.packages}
+      { model
+      | packages = package :: model.packages
+      , selectedPackage = Just package
+      }
         |> persist
     PackageLoaded (Err err) ->
       let _ = Debug.log "elm-package.json import failed" err in
       (model, Cmd.none)
     PackageUrlLoaded (Ok package) ->
-      {model | packages = package :: model.packages}
+      { model
+      | packages = package :: model.packages
+      , selectedPackage = Just package
+      }
         |> persist
     PackageUrlLoaded (Err err) ->
       let _ = Debug.log "elm-package.json fetch failed" err in
