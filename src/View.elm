@@ -38,9 +38,9 @@ css = """
 .pick-url { max-width: 20em; }
 .known-packages { max-width: 20em; }
 .package-summary { max-width: 20em; }
-.package-detail { max-width: 20em; }
+.package-detail { max-width: 30em; }
 
-@media only screen and (min-width: 40em) {
+@media only screen and (min-width: 50em) {
   .pick-file { width: 33%; }
   .pick-url { width: 33%; }
   .known-packages { width: 33%; }
@@ -202,6 +202,8 @@ translatePackageName name =
     "elm-lang/navigation" -> "elm/browser"
     "elm-lang/page-visibility" -> "elm/browser"
     "elm-lang/window" -> "elm/browser"
+    "elm-community/elm-test" -> "elm-explorations/test"
+    "mgold/elm-random-pcg" -> "elm/random"
     _ -> String.replace "elm-lang/" "elm/" name
 
 targetValue : (String -> msg) -> Json.Decode.Decoder msg
