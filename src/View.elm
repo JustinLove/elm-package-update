@@ -53,10 +53,9 @@ view model =
         (model.packages
           |> List.indexedMap (displayPackageSummary model.repository model.selectedPackage)
         )
-    , ul []
-        (model.packages
-          |> List.indexedMap (displayPackageDetail model.repository model.selectedPackage)
-        )
+    , model.selectedPackage
+      |> Maybe.map (displayPackageDetail model.repository)
+      |> Maybe.withDefault (text "")
     ]
 
 displayPackageSummary : (List String) -> Maybe Package -> Int -> Package -> Html Msg
@@ -67,11 +66,13 @@ displayPackageSummary repository selectedPackage index package =
   li []
     [ button [ onClick (RemovePackage index) ] [ text "X" ]
     , text " "
-    , span
+    , a
       [ classList
         [ ("found", List.isEmpty missing)
         , ("project-name", True)
         ]
+      , href "#"
+      , onClick (SelectPackage package)
       ]
       [ text (Maybe.withDefault "--" package.name) ]
     , text " "
@@ -86,19 +87,17 @@ displayPackageSummary repository selectedPackage index package =
         span [ class "found" ] [ text (String.fromInt (List.length updated)) ]
     ]
 
-displayPackageDetail : (List String) -> Maybe Package -> Int -> Package -> Html Msg
-displayPackageDetail repository selectedPackage index package =
+displayPackageDetail : (List String) -> Package -> Html Msg
+displayPackageDetail repository package =
   li []
     [ input
       [ class "project-name"
-      , id ("project-" ++ (String.fromInt index))
+      , id ("project-detail")
       , onClick (SelectPackage package)
       , on "change" <| targetValue (RenamePackage package)
-      , readonly ((Just package) /= selectedPackage)
       , value (Maybe.withDefault "--" package.name)
       ] []
     , text " "
-    , button [ onClick (RemovePackage index) ] [ text "X" ]
     , ul []
       (List.map (displayDependency repository) package.dependencies)
     ]
