@@ -16,8 +16,19 @@ type Msg
 
 css = """
 .found { color: green; }
-.missing { color: red; }
-.old-name .missing { opacity: 0.5; }
+.missing {
+  color: white;
+  background-color: red;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+}
+.old-name .missing { color: red; background-color: transparent; opacity: 0.5; }
+.project-name.found {
+  color: white;
+  background-color: green;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+}
 input[readonly] { background-color: #eee; }
 """
 
@@ -40,12 +51,43 @@ view model =
       ]
     , ul []
         (model.packages
-          |> List.indexedMap (displayPackage model.repository model.selectedPackage)
+          |> List.indexedMap (displayPackageSummary model.repository model.selectedPackage)
+        )
+    , ul []
+        (model.packages
+          |> List.indexedMap (displayPackageDetail model.repository model.selectedPackage)
         )
     ]
 
-displayPackage : (List String) -> Maybe Package -> Int -> Package -> Html Msg
-displayPackage repository selectedPackage index package =
+displayPackageSummary : (List String) -> Maybe Package -> Int -> Package -> Html Msg
+displayPackageSummary repository selectedPackage index package =
+  let
+    (updated, missing) = List.partition (isUpdated repository) package.dependencies
+  in
+  li []
+    [ button [ onClick (RemovePackage index) ] [ text "X" ]
+    , text " "
+    , span
+      [ classList
+        [ ("found", List.isEmpty missing)
+        , ("project-name", True)
+        ]
+      ]
+      [ text (Maybe.withDefault "--" package.name) ]
+    , text " "
+    , if List.isEmpty missing then
+        text ""
+      else
+        span [ class "missing" ] [ text (String.fromInt (List.length missing)) ]
+    , text " "
+    , if List.isEmpty updated then
+        text ""
+      else
+        span [ class "found" ] [ text (String.fromInt (List.length updated)) ]
+    ]
+
+displayPackageDetail : (List String) -> Maybe Package -> Int -> Package -> Html Msg
+displayPackageDetail repository selectedPackage index package =
   li []
     [ input
       [ class "project-name"
@@ -77,6 +119,13 @@ displayDependency repository name =
         , text ")"
         ]
     )
+
+isUpdated : (List String) -> String -> Bool
+isUpdated repository name =
+  let
+    newName = translatePackageName name
+  in
+    List.member newName repository
 
 packageName : Bool -> String -> Html msg
 packageName found name =
