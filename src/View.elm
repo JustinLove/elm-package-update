@@ -44,8 +44,8 @@ css = """
   .pick-file { width: 33%; }
   .pick-url { width: 33%; }
   .known-packages { width: 33%; }
-  .package-summary { width: 50%; }
-  .package-detail { width: 50%; }
+  .package-summary { width: 40%; }
+  .package-detail { width: 60%; }
 }
 
 header { margin-bottom: 1em; }
