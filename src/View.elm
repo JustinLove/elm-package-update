@@ -100,7 +100,7 @@ view model =
         ]
       ]
     , div [ class "row" ]
-      [ ul [ class "package-summary col" ]
+      [ table [ class "package-summary col" ]
           (model.packages
             |> List.indexedMap (displayPackageSummary model.repository model.selectedPackage)
           )
@@ -117,10 +117,19 @@ displayPackageSummary repository selectedPackage index package =
   let
     (updated, missing) = List.partition (isUpdated repository) package.dependencies
   in
-  li []
-    [ button [ onClick (RemovePackage index) ] [ text "X" ]
-    , text " "
-    , a
+  tr []
+    [ td [] [ button [ onClick (RemovePackage index) ] [ text "X" ] ]
+    , td [] [ if List.isEmpty updated then
+        text ""
+      else
+        span [ class "found" ] [ text (String.fromInt (List.length updated)) ]
+      ]
+    , td [] [ if List.isEmpty missing then
+        text ""
+      else
+        span [ class "missing" ] [ text (String.fromInt (List.length missing)) ]
+        ]
+    , td [] [ a
       [ classList
         [ ("found", List.isEmpty missing)
         , ("project-name", True)
@@ -129,16 +138,7 @@ displayPackageSummary repository selectedPackage index package =
       , onClick (SelectPackage package)
       ]
       [ text (Maybe.withDefault "--" package.name) ]
-    , text " "
-    , if List.isEmpty missing then
-        text ""
-      else
-        span [ class "missing" ] [ text (String.fromInt (List.length missing)) ]
-    , text " "
-    , if List.isEmpty updated then
-        text ""
-      else
-        span [ class "found" ] [ text (String.fromInt (List.length updated)) ]
+      ]
     ]
 
 displayPackageDetail : (List String) -> Package -> Html Msg
