@@ -52,6 +52,8 @@ header { margin-bottom: 1em; }
 .package-summary { margin-top: 0; }
 .known-packages { margin-top: 0; margin-bottom: 0;}
 
+.package-detail ul { padding-left: 0; }
+
 .found, .found a  { color: green; }
 .missing, .missing a {
   color: white;
