@@ -1,11 +1,13 @@
 module View exposing (Msg(..), view, document)
 
-import Package exposing (Package)
 import FileInput
+import Package exposing (Package)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick)
+import Svg exposing (svg, use)
+import Svg.Attributes exposing (xlinkHref)
 import Json.Decode
 
 type Msg
@@ -69,6 +71,20 @@ header { margin-bottom: 1em; }
   padding-right: 0.2em;
 }
 input[readonly] { background-color: #eee; }
+
+svg.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.2em;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+.icon-github { color: #888; }
+.icon-twitter { color: #55acee; }
+.icon-twitch { color: #6441A4; }
 """
 
 document tagger model =
@@ -112,6 +128,7 @@ view model =
           |> Maybe.withDefault (text "")
         ]
       ]
+    , displayFooter
     ]
 
 displayPackageSummary : (List String) -> Maybe Package -> Int -> Package -> Html Msg
@@ -219,6 +236,24 @@ translatePackageName name =
     "elm-community/elm-test" -> "elm-explorations/test"
     "mgold/elm-random-pcg" -> "elm/random"
     _ -> String.replace "elm-lang/" "elm/" name
+
+displayFooter : Html msg
+displayFooter =
+  footer [ class "row" ]
+    [ a [ href "https://github.com/JustinLove/hosting-clips" ]
+      [ icon "github", text "hosting-clips" ]
+    , text " "
+    , a [ href "https://twitter.com/wondible" ]
+      [ icon "twitter", text "@wondible" ]
+    , text " "
+    , a [ href "https://twitch.tv/wondible" ]
+      [ icon "twitch", text "wondible" ]
+    ]
+
+icon : String -> Html msg
+icon name =
+  svg [ Svg.Attributes.class ("icon icon-"++name) ]
+    [ use [ xlinkHref ("symbol-defs.svg#icon-"++name) ] [] ]
 
 targetValue : (String -> msg) -> Json.Decode.Decoder msg
 targetValue tagger =
