@@ -240,8 +240,8 @@ translatePackageName name =
 displayFooter : Html msg
 displayFooter =
   footer [ class "row" ]
-    [ a [ href "https://github.com/JustinLove/hosting-clips" ]
-      [ icon "github", text "hosting-clips" ]
+    [ a [ href "https://github.com/JustinLove/elm-package-update" ]
+      [ icon "github", text "elm-package-update" ]
     , text " "
     , a [ href "https://twitter.com/wondible" ]
       [ icon "twitter", text "@wondible" ]
