@@ -224,8 +224,12 @@ packageName found name =
 translatePackageName : String -> String
 translatePackageName name =
   case name of
-    "evancz/url-parser" -> "elm/url"
-    "elm-tools/parser" -> "elm/parser"
+    "avh4/elm-transducers" -> "avh4-experimental/elm-transducers"
+    "BrianHicks/elm-benchmark" -> "elm-explorations/benchmark"
+    "dillonkearns/graphqelm" -> "dillonkearns/elm-graphql"
+    "elm-community/elm-test" -> "elm-explorations/test"
+    "elm-community/linear-algebra" -> "elm-explorations/linear-algebra"
+    "elm-community/webgl" -> "elm-explorations/webgl"
     "elm-lang/animation-frame" -> "elm/browser"
     "elm-lang/dom" -> "elm/browser"
     "elm-lang/keyboard" -> "elm/browser"
@@ -233,8 +237,17 @@ translatePackageName name =
     "elm-lang/navigation" -> "elm/browser"
     "elm-lang/page-visibility" -> "elm/browser"
     "elm-lang/window" -> "elm/browser"
-    "elm-community/elm-test" -> "elm-explorations/test"
+    "elm-tools/parser" -> "elm/parser"
+    "evancz/elm-markdown" -> "elm-explorations/markdown"
+    "evancz/url-parser" -> "elm/url"
     "mgold/elm-random-pcg" -> "elm/random"
+    "mpizenberg/elm-mouse-events" -> "mpizenberg/elm-pointer-events"
+    "mpizenberg/elm-touch-events" -> "mpizenberg/elm-pointer-events"
+    "NoRedInk/elm-decode-pipeline" -> "NoRedInk/json-decode-pipeline"
+    "ohanhi/keyboard-extra" -> "ohanhi/keyboard"
+    "rtfeldman/hex" -> "rtfeldman/elm-hex"
+    "ryannhg/elm-date-format" -> "ryannhg/date-format"
+    "thebritican/elm-autocomplete" -> "ContaSystemer/elm-menu"
     _ -> String.replace "elm-lang/" "elm/" name
 
 displayFooter : Html msg
